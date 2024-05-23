@@ -6,52 +6,115 @@
     <title>Leaderboard</title>
     <style>
         body {
-            background-color: #0000F5;
+            background-color: #1A2B48;
             color: white;
             font-family: Arial, sans-serif;
             text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        h1 {
-            margin-top: 20px;
-        }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
+        .container {
+            background-color: #2C3E50;
+            border-radius: 10px;
+            padding: 20px;
             width: 80%;
+            max-width: 800px;
         }
-        th, td {
-            border: 1px solid white;
-            padding: 10px;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        th {
-            background-color: #0000F5;
+        .header .title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .header .tabs {
+            display: flex;
+        }
+        .header .tabs div {
+            margin-left: 10px;
+            cursor: pointer;
         }
         .leaderboard {
-            margin-top: 40px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leaderboard th, .leaderboard td {
+            padding: 10px;
+            border: 1px solid #34495E;
+        }
+        .leaderboard th {
+            background-color: #1A2B48;
+        }
+        .leaderboard tbody tr:nth-child(odd) {
+            background-color: #34495E;
+        }
+        .leaderboard tbody tr:nth-child(even) {
+            background-color: #2C3E50;
+        }
+        .leaderboard tbody tr {
+            transition: background-color 0.3s ease;
+        }
+        .leaderboard tbody tr:hover {
+            background-color: #3A506B;
+        }
+        .leaderboard .rank {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .profile-pics {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .profile-pics img {
+            border-radius: 50%;
+            margin: 0 10px;
+            width: 50px;
+            height: 50px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Kaiko | Table tennis competition</h1>
-    <h2>Scores</h2>
-    <table id="gameResults">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Home Team</th>
-                <th>Away Team</th>
-                <th>Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Game results will be populated here -->
-        </tbody>
-    </table>
+    <div class="container">
+        <div class="header">
+            <div class="title">LEADERBOARD for Game</div>
+            <div class="tabs">
+                <div>Today</div>
+                <div>Month</div>
+                <div>All Time</div>
+            </div>
+        </div>
 
-    <div class="leaderboard">
-        <h2>Leaderboard</h2>
-        <table id="leaderboard">
+        <div class="profile-pics">
+            <img src="profile1.jpg" alt="Profile 1">
+            <img src="profile2.jpg" alt="Profile 2">
+            <img src="profile3.jpg" alt="Profile 3">
+        </div>
+
+        <table class="leaderboard">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Home Team</th>
+                    <th>Away Team</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="gameResults">
+                <!-- Game results will be populated here -->
+            </tbody>
+        </table>
+
+        <h2>Top 2 Teams</h2>
+        <table class="leaderboard">
             <thead>
                 <tr>
                     <th>Rank</th>
@@ -59,7 +122,7 @@
                     <th>Points</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="leaderboard">
                 <!-- Leaderboard will be populated here -->
             </tbody>
         </table>
@@ -67,14 +130,14 @@
 
     <script>
         const gameResults = [
-            { date: '23-05-2024', home: 'Chris', away: 'Sam', score: '2-0' }
+            { date: '2024-05-01', home: 'Chris', away: 'Sam', score: '2-0' }
         ];
 
         // Populate game results
-        const resultsTableBody = document.getElementById('gameResults').getElementsByTagName('tbody')[0];
-        gameResults.forEach(result => {
+        const resultsTableBody = document.getElementById('gameResults');
+        gameResults.forEach((result, index) => {
             const row = resultsTableBody.insertRow();
-            row.insertCell(0).innerText = result.date;
+            row.insertCell(0).innerText = index + 1;
             row.insertCell(1).innerText = result.home;
             row.insertCell(2).innerText = result.away;
             row.insertCell(3).innerText = result.score;
@@ -95,7 +158,7 @@
         const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
 
         // Populate leaderboard
-        const leaderboardTableBody = document.getElementById('leaderboard').getElementsByTagName('tbody')[0];
+        const leaderboardTableBody = document.getElementById('leaderboard');
         topTeams.forEach((team, index) => {
             const row = leaderboardTableBody.insertRow();
             row.insertCell(0).innerText = index + 1;
