@@ -47,22 +47,22 @@
         }
         .leaderboard th, .leaderboard td {
             padding: 10px;
-            border: 1px solid #0000F5;
+            border: 1px solid #000000;
         }
         .leaderboard th {
-            background-color: #ECECEC;
+            background-color: #0000F5;
         }
         .leaderboard tbody tr:nth-child(odd) {
-            background-color: #E2ECEC;
+            background-color: #6666ff;
         }
         .leaderboard tbody tr:nth-child(even) {
-            background-color: #ECECE1;
+            background-color: #6666ff;
         }
         .leaderboard tbody tr {
             transition: background-color 0.3s ease;
         }
         .leaderboard tbody tr:hover {
-            background-color: #ECDCEC;
+            background-color: #4c4cff;
         }
         .leaderboard .rank {
             font-weight: bold;
@@ -136,7 +136,7 @@
         const resultsTableBody = document.getElementById('gameResults');
         gameResults.forEach((result, index) => {
             const row = resultsTableBody.insertRow();
-            row.insertCell(0).innerText = index + 1;
+            row.insertCell(0).innerText = result.date;
             row.insertCell(1).innerText = result.home;
             row.insertCell(2).innerText = result.away;
             row.insertCell(3).innerText = result.score;
