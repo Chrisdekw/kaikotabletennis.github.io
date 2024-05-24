@@ -130,7 +130,7 @@
 
     <script>
         const gameResults = [
-            { date: '24-05-2024', home: 'Chris', away: 'Sam', score: '2-0' }
+            { date: '24-05-2024', home: 'Chris', away: 'Sam', score: '2-0' },
             { date: '24-05-2024', home: 'Thomas', away: 'Chris', score: '1-0' }
         ];
 
@@ -145,25 +145,27 @@
         });
 
         // Calculate points
-const points = { 'Chris': 0, 'Sam': 0, 'Thomas': 0 };
-gameResults.forEach(result => {
-    const [homeScore, awayScore] = result.score.split('-').map(Number);
-    const scoreDifference = Math.abs(homeScore - awayScore);
-    
-    if (homeScore > awayScore) {
-        if (scoreDifference === 1) {
-            points[result.home] += 50;
-        } else if (scoreDifference === 2) {
-            points[result.home] += 100;
-        }
-    } else if (awayScore > homeScore) {
-        if (scoreDifference === 1) {
-            points[result.away] += 50;
-        } else if (scoreDifference === 2) {
-            points[result.away] += 100;
-        }
-    }
-});
+        const points = {};
+        gameResults.forEach(result => {
+            points[result.home] = points[result.home] || 0;
+            points[result.away] = points[result.away] || 0;
+            const [homeScore, awayScore] = result.score.split('-').map(Number);
+            const scoreDifference = Math.abs(homeScore - awayScore);
+            
+            if (homeScore > awayScore) {
+                if (scoreDifference === 1) {
+                    points[result.home] += 50;
+                } else if (scoreDifference === 2) {
+                    points[result.home] += 100;
+                }
+            } else if (awayScore > homeScore) {
+                if (scoreDifference === 1) {
+                    points[result.away] += 50;
+                } else if (scoreDifference === 2) {
+                    points[result.away] += 100;
+                }
+            }
+        });
 
         // Sort teams by points and get leaderboard
         const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
