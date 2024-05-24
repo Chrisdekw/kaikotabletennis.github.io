@@ -96,6 +96,7 @@
         <div class="profile-pics">
             <img src="https://ca.slack-edge.com/T02K6Q31950-U0557N5KRRD-8018b6da2609-512" alt="Profile 1">
             <img src="https://ca.slack-edge.com/T02K6Q31950-U05U4742BH8-ec958c0d689d-512" alt="Profile 2">
+            <img src="https://media.licdn.com/dms/image/C4E03AQFWiUVkOUZSNg/profile-displayphoto-shrink_800_800/0/1597223734411?e=1721865600&v=beta&t=6tW_Vp7ikhF1StuISu-cFRAxCuOzEJ1rcOSw_BB_GoQ" alt="Profile 3">
         </div>
 
         <table class="leaderboard">
@@ -129,7 +130,8 @@
 
     <script>
         const gameResults = [
-            { date: '23-05-2024', home: 'Chris', away: 'Sam', score: '2-0' }
+            { date: '24-05-2024', home: 'Chris', away: 'Sam', score: '2-0' }
+            { date: '24-05-2024', home: 'Thomas', away: 'Chris', score: '1-0' }
         ];
 
         // Populate game results
@@ -143,17 +145,27 @@
         });
 
         // Calculate points
-        const points = { 'Chris': 0, 'Sam': 0 };
-        gameResults.forEach(result => {
-            const [homeScore, awayScore] = result.score.split('-').map(Number);
-            if (homeScore > awayScore) {
-                points[result.home] += 1;
-            } else if (awayScore > homeScore) {
-                points[result.away] += 1;
-            }
-        });
+const points = { 'Chris': 0, 'Sam': 0, 'Thomas': 0 };
+gameResults.forEach(result => {
+    const [homeScore, awayScore] = result.score.split('-').map(Number);
+    const scoreDifference = Math.abs(homeScore - awayScore);
+    
+    if (homeScore > awayScore) {
+        if (scoreDifference === 1) {
+            points[result.home] += 50;
+        } else if (scoreDifference === 2) {
+            points[result.home] += 100;
+        }
+    } else if (awayScore > homeScore) {
+        if (scoreDifference === 1) {
+            points[result.away] += 50;
+        } else if (scoreDifference === 2) {
+            points[result.away] += 100;
+        }
+    }
+});
 
-        // Sort teams by points and get top 2
+        // Sort teams by points and get leaderboard
         const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
 
         // Populate leaderboard
