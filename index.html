@@ -81,6 +81,13 @@
             width: 50px;
             height: 50px;
         }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container input, .form-container button {
+            padding: 10px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +106,15 @@
             <img src="https://ca.slack-edge.com/T02K6Q31950-U0557N5KRRD-8018b6da2609-512" alt="Profile 1">
             <img src="https://ca.slack-edge.com/T02K6Q31950-U05U4742BH8-ec958c0d689d-512" alt="Profile 2">
             <img src="https://media.licdn.com/dms/image/C4E03AQFWiUVkOUZSNg/profile-displayphoto-shrink_800_800/0/1597223734411?e=1721865600&v=beta&t=6tW_Vp7ikhF1StuISu-cFRAxCuOzEJ1rcOSw_BB_GoQ" alt="Profile 3">
+        </div>
+
+        <div class="form-container">
+            <h2>Enter Game Result</h2>
+            <input type="date" id="gameDate" required>
+            <input type="text" id="homePlayer" placeholder="Home Player" required>
+            <input type="text" id="awayPlayer" placeholder="Away Player" required>
+            <input type="text" id="score" placeholder="Score (e.g., 2-0)" required>
+            <button onclick="addGameResult()">Submit</button>
         </div>
 
         <table class="leaderboard">
@@ -133,8 +149,8 @@
     <div class="container">
         <h2>Instructions</h2>
         <p>Everyone competes in the leaderboard and should play at least one game per week. The more games you play, the more points you can obtain. If you don't play for 30 days, your score on the leaderboard will reset to zero.</p>
-        <p>A match consists of games played to 11 points each, with the serve alternating every 2 points. The first player to win two games wins the match. Winning by a one-point margin earns you 50 points, while winning by a two-point margin earns you 100 points.</p>
-        <p>Make sure you add the accurate date of your game to the leaderboard as recent games will count more towards your total score.</p>
+        <p>One game is played to 11 points, and the serve changes every 2 plays. Whoever wins two games first wins the match. If you win with a one-point difference, you get 50 points. If you win with a two-point difference, you get 100 points.</p>
+        <p>Make sure you add the date of your game to the leaderboard, as recent games will count more towards your total score.</p>
     </div>
 
     <script>
@@ -143,7 +159,91 @@
             { date: '2024-05-24', home: 'Thomas', away: 'Chris', score: '1-0' }
         ];
 
-        // Populate game results
+        function addGameResult() {
+            const date = document.getElementById('gameDate').value;
+            const home = document.getElementById('homePlayer').value;
+            const away = document.getElementById('awayPlayer').value;
+            const score = document.getElementById('score').value;
+
+            if (!date || !home || !away || !score) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            const newResult = { date: date, home: home, away: away, score: score };
+            gameResults.push(newResult);
+
+            const row = resultsTableBody.insertRow();
+            row.insertCell(0).innerText = newResult.date;
+            row.insertCell(1).innerText = newResult.home;
+            row.insertCell(2).innerText = newResult.away;
+            row.insertCell(3).innerText = newResult.score;
+
+            calculateLeaderboard();
+        }
+
+        function calculateLeaderboard() {
+            const points = {};
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            gameResults.forEach(result => {
+                points[result.home] = points[result.home] || 0;
+                points[result.away] = points[result.away] || 0;
+                const [homeScore, awayScore] = result.score.split('-').map(Number);
+                const scoreDifference = Math.abs(homeScore - awayScore);
+                const gameDate = new Date(result.date);
+
+                let pointMultiplier = gameDate >= thirtyDaysAgo ? 1 : 0.5;
+
+                if (homeScore > awayScore) {
+                    if (scoreDifference === 1) {
+                        points[result.home] += 50 * pointMultiplier;
+                    } else if (scoreDifference === 2) {
+                        points[result.home] += 100 * pointMultiplier;
+                    }
+                } else if (awayScore > homeScore) {
+                    if (scoreDifference === 1) {
+                        points[result.away] += 50 * pointMultiplier;
+                    } else if (scoreDifference === 2) {
+                        points[result.away] += 100 * pointMultiplier;
+                    }
+                }
+            });
+
+            // Reset points for players who have not played in the last 30 days
+            for (let player in points) {
+                const lastPlayed = gameResults.reduce((latest, result) => {
+                    if (result.home === player || result.away === player) {
+                        const gameDate = new Date(result.date);
+                        if (gameDate > latest) {
+                            return gameDate;
+                        }
+                    }
+                    return latest;
+                }, new Date('1970-01-01'));
+
+                if (lastPlayed < thirtyDaysAgo) {
+                    points[player] = 0;
+                }
+            }
+
+            // Sort teams by points and get leaderboard
+            const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
+
+            // Populate leaderboard
+            const leaderboardTableBody = document.getElementById('leaderboard');
+            leaderboardTableBody.innerHTML = ''; // Clear previous results
+            topTeams.forEach((team, index) => {
+                const row = leaderboardTableBody.insertRow();
+                row.insertCell(0).innerText = index + 1;
+                row.insertCell(1).innerText = team[0];
+                row.insertCell(2).innerText = team[1];
+            });
+        }
+
+        // Initial population of game results and leaderboard
         const resultsTableBody = document.getElementById('gameResults');
         gameResults.forEach((result, index) => {
             const row = resultsTableBody.insertRow();
@@ -153,63 +253,7 @@
             row.insertCell(3).innerText = result.score;
         });
 
-        // Calculate points
-        const points = {};
-        const today = new Date();
-        const thirtyDaysAgo = new Date(today.setDate(today.getDate() - 30));
-
-        gameResults.forEach(result => {
-            points[result.home] = points[result.home] || 0;
-            points[result.away] = points[result.away] || 0;
-            const [homeScore, awayScore] = result.score.split('-').map(Number);
-            const scoreDifference = Math.abs(homeScore - awayScore);
-            const gameDate = new Date(result.date);
-
-            let pointMultiplier = gameDate >= thirtyDaysAgo ? 1 : 0.5;
-
-            if (homeScore > awayScore) {
-                if (scoreDifference === 1) {
-                    points[result.home] += 50 * pointMultiplier;
-                } else if (scoreDifference === 2) {
-                    points[result.home] += 100 * pointMultiplier;
-                }
-            } else if (awayScore > homeScore) {
-                if (scoreDifference === 1) {
-                    points[result.away] += 50 * pointMultiplier;
-                } else if (scoreDifference === 2) {
-                    points[result.away] += 100 * pointMultiplier;
-                }
-            }
-        });
-
-        // Reset points for players who have not played in the last 30 days
-        for (let player in points) {
-            const lastPlayed = gameResults.reduce((latest, result) => {
-                if (result.home === player || result.away === player) {
-                    const gameDate = new Date(result.date);
-                    if (gameDate > latest) {
-                        return gameDate;
-                    }
-                }
-                return latest;
-            }, new Date('1970-01-01'));
-
-            if (lastPlayed < thirtyDaysAgo) {
-                points[player] = 0;
-            }
-        }
-
-        // Sort teams by points and get leaderboard
-        const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
-
-        // Populate leaderboard
-        const leaderboardTableBody = document.getElementById('leaderboard');
-        topTeams.forEach((team, index) => {
-            const row = leaderboardTableBody.insertRow();
-            row.insertCell(0).innerText = index + 1;
-            row.insertCell(1).innerText = team[0];
-            row.insertCell(2).innerText = team[1];
-        });
+        calculateLeaderboard();
     </script>
 
 </body>
