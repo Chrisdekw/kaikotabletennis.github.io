@@ -88,6 +88,13 @@
             padding: 10px;
             margin: 5px;
         }
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -124,6 +131,7 @@
                     <th>Home</th>
                     <th>Away</th>
                     <th>Score</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody id="gameResults">
@@ -178,8 +186,22 @@
             row.insertCell(1).innerText = newResult.home;
             row.insertCell(2).innerText = newResult.away;
             row.insertCell(3).innerText = newResult.score;
+            const deleteCell = row.insertCell(4);
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.className = 'delete-btn';
+            deleteButton.onclick = () => deleteGameResult(index);
+            deleteCell.appendChild(deleteButton);
 
             calculateLeaderboard();
+        }
+
+        function deleteGameResult(index) {
+            if (confirm('Are you sure you want to delete this result?')) {
+                gameResults.splice(index, 1);
+                resultsTableBody.deleteRow(index);
+                calculateLeaderboard();
+            }
         }
 
         function calculateLeaderboard() {
@@ -241,6 +263,13 @@
                 row.insertCell(1).innerText = team[0];
                 row.insertCell(2).innerText = team[1];
             });
+
+            // Update delete buttons
+            const rows = resultsTableBody.rows;
+            for (let i = 0; i < rows.length; i++) {
+                const deleteButton = rows[i].cells[4].querySelector('button');
+                deleteButton.onclick = () => deleteGameResult(i);
+            }
         }
 
         // Initial population of game results and leaderboard
@@ -251,6 +280,12 @@
             row.insertCell(1).innerText = result.home;
             row.insertCell(2).innerText = result.away;
             row.insertCell(3).innerText = result.score;
+            const deleteCell = row.insertCell(4);
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'Delete';
+            deleteButton.className = 'delete-btn';
+            deleteButton.onclick = () => deleteGameResult(index);
+            deleteCell.appendChild(deleteButton);
         });
 
         calculateLeaderboard();
