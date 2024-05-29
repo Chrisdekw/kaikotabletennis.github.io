@@ -48,7 +48,7 @@
             border-collapse: collapse;
         }
         .leaderboard th, .leaderboard td {
-            padding: 10px;
+            padding: 5px; /* Reduced padding for smaller rows */
             border: 1px solid #000000;
         }
         .leaderboard th {
@@ -98,6 +98,15 @@
             width: 20px;
             height: 20px;
         }
+        .show-more-btn {
+            background-color: #0000F5;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -116,9 +125,9 @@
             <img src="https://ca.slack-edge.com/T02K6Q31950-U0557N5KRRD-8018b6da2609-512" alt="Profile 1">
             <img src="https://ca.slack-edge.com/T02K6Q31950-U05U4742BH8-ec958c0d689d-512" alt="Profile 2">
             <img src="https://media.licdn.com/dms/image/C4E03AQFWiUVkOUZSNg/profile-displayphoto-shrink_800_800/0/1597223734411?e=1721865600&v=beta&t=6tW_Vp7ikhF1StuISu-cFRAxCuOzEJ1rcOSw_BB_GoQ" alt="Profile 3">
-            <img src="https://media.licdn.com/dms/image/C5603AQHWULhcxOCRqg/profile-displayphoto-shrink_800_800/0/1596818979026?e=1722470400&v=beta&t=N1xZUo-7SFHSHp9MnCBKTYYhFaKxZ1LwJaHYqHuyqEA"="Profile 4">
-            <img src="https://ca.slack-edge.com/T02K6Q31950-U05STJRB74L-5af5758ee23e-512"="Profile 5">
-            <img src="https://media.licdn.com/dms/image/C4D03AQH4zz-VJTpxuw/profile-displayphoto-shrink_800_800/0/1597269363029?e=1722470400&v=beta&t=yNHH7mG-fb-CnDTIAxm4uXvMUG0eqxGOClNRvOER62w"="Profile 6">
+            <img src="https://media.licdn.com/dms/image/C5603AQHWULhcxOCRqg/profile-displayphoto-shrink_800_800/0/1596818979026?e=1722470400&v=beta&t=N1xZUo-7SFHSHp9MnCBKTYYhFaKxZ1LwJaHYqHuyqEA" alt="Profile 4">
+            <img src="https://ca.slack-edge.com/T02K6Q31950-U05STJRB74L-5af5758ee23e-512" alt="Profile 5">
+            <img src="https://media.licdn.com/dms/image/C4D03AQH4zz-VJTpxuw/profile-displayphoto-shrink_800_800/0/1597269363029?e=1722470400&v=beta&t=yNHH7mG-fb-CnDTIAxm4uXvMUG0eqxGOClNRvOER62w" alt="Profile 6">
         </div>
 
         <div class="form-container">
@@ -145,6 +154,8 @@
             </tbody>
         </table>
 
+        <button class="show-more-btn" onclick="showMoreResults()">Show more results</button>
+
         <h2>Leaderboard</h2>
         <table class="leaderboard">
             <thead>
@@ -168,7 +179,7 @@
     </div>
 
     <script>
-        const gameResults = [
+        let gameResults = [
             { date: '2024-05-24', home: 'Chris', away: 'Sam', score: '2-0' },
             { date: '2024-05-24', home: 'Thomas', away: 'Chris', score: '1-0' },
             { date: '2024-05-27', home: 'Nanne', away: 'Sam', score: '2-1' },
@@ -181,6 +192,7 @@
             { date: '2024-05-29', home: 'Thomas', away: 'Sam', score: '2-0' },
             { date: '2024-05-29', home: 'Thomas', away: 'Chris', score: '2-1' },
         ];
+        let showMoreCount = 20;
 
         function addGameResult() {
             const date = document.getElementById('gameDate').value;
@@ -193,30 +205,46 @@
                 return;
             }
 
-            const newResult = { date: date, home: home, away: away, score: score };
+            const newResult = { date, home, away, score };
             gameResults.push(newResult);
+            gameResults.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            const row = resultsTableBody.insertRow();
-            row.insertCell(0).innerText = newResult.date;
-            row.insertCell(1).innerText = newResult.home;
-            row.insertCell(2).innerText = newResult.away;
-            row.insertCell(3).innerText = newResult.score;
-            const deleteCell = row.insertCell(4);
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-btn';
-            deleteButton.innerHTML = '<img src="https://img.icons8.com/ios-filled/50/000000/delete.png" alt="Delete">';
-            deleteButton.onclick = () => deleteGameResult(resultsTableBody.rows.length - 1);
-            deleteCell.appendChild(deleteButton);
-
+            displayResults();
             calculateLeaderboard();
         }
 
         function deleteGameResult(index) {
             if (confirm('Are you sure you want to delete this result?')) {
                 gameResults.splice(index, 1);
-                resultsTableBody.deleteRow(index);
+                displayResults();
                 calculateLeaderboard();
             }
+        }
+
+        function displayResults() {
+            const resultsTableBody = document.getElementById('gameResults');
+            resultsTableBody.innerHTML = ''; // Clear previous results
+            const visibleResults = gameResults.slice(0, showMoreCount);
+            visibleResults.forEach((result, index) => {
+                const row = resultsTableBody.insertRow();
+                row.insertCell(0).innerText = result.date;
+                row.insertCell(1).innerText = result.home;
+                row.insertCell(2).innerText = result.away;
+                row.insertCell(3).innerText = result.score;
+                const deleteCell = row.insertCell(4);
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-btn';
+                deleteButton.innerHTML = '<img src="https://img.icons8.com/ios-filled/50/000000/delete.png" alt="Delete">';
+                deleteButton.onclick = () => deleteGameResult(index);
+                deleteCell.appendChild(deleteButton);
+            });
+
+            document.querySelector('.show-more-btn').style.display = gameResults.length > showMoreCount ? 'block' : 'none';
+        }
+
+        function showMoreResults() {
+            showMoreCount += 20;
+            displayResults();
         }
 
         function calculateLeaderboard() {
@@ -266,44 +294,34 @@
                 }
             }
 
-            // Sort teams by points and get leaderboard
-            const topTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
+            // Sort players by points and then by head-to-head results if points are equal
+            const sortedPlayers = Object.entries(points).sort((a, b) => {
+                if (b[1] === a[1]) {
+                    const headToHead = gameResults.filter(result => (result.home === a[0] && result.away === b[0]) || (result.home === b[0] && result.away === a[0]));
+                    const aWins = headToHead.filter(result => (result.home === a[0] && result.score.split('-')[0] > result.score.split('-')[1]) || (result.away === a[0] && result.score.split('-')[1] > result.score.split('-')[0])).length;
+                    const bWins = headToHead.filter(result => (result.home === b[0] && result.score.split('-')[0] > result.score.split('-')[1]) || (result.away === b[0] && result.score.split('-')[1] > result.score.split('-')[0])).length;
+                    return bWins - aWins;
+                }
+                return b[1] - a[1];
+            });
 
             // Populate leaderboard
             const leaderboardTableBody = document.getElementById('leaderboard');
             leaderboardTableBody.innerHTML = ''; // Clear previous results
-            topTeams.forEach((team, index) => {
+            sortedPlayers.forEach((player, index) => {
                 const row = leaderboardTableBody.insertRow();
                 row.insertCell(0).innerText = index + 1;
-                row.insertCell(1).innerText = team[0];
-                row.insertCell(2).innerText = team[1];
+                row.insertCell(1).innerText = player[0];
+                row.insertCell(2).innerText = player[1];
             });
-
-            // Update delete buttons
-            const rows = resultsTableBody.rows;
-            for (let i = 0; i < rows.length; i++) {
-                const deleteButton = rows[i].cells[4].querySelector('button');
-                deleteButton.onclick = () => deleteGameResult(i);
-            }
         }
 
         // Initial population of game results and leaderboard
-        const resultsTableBody = document.getElementById('gameResults');
-        gameResults.forEach((result, index) => {
-            const row = resultsTableBody.insertRow();
-            row.insertCell(0).innerText = result.date;
-            row.insertCell(1).innerText = result.home;
-            row.insertCell(2).innerText = result.away;
-            row.insertCell(3).innerText = result.score;
-            const deleteCell = row.insertCell(4);
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-btn';
-            deleteButton.innerHTML = '<img src="https://img.icons8.com/ios-filled/50/000000/delete.png" alt="Delete">';
-            deleteButton.onclick = () => deleteGameResult(index);
-            deleteCell.appendChild(deleteButton);
+        document.addEventListener('DOMContentLoaded', () => {
+            gameResults.sort((a, b) => new Date(b.date) - new Date(a.date));
+            displayResults();
+            calculateLeaderboard();
         });
-
-        calculateLeaderboard();
     </script>
 
 </body>
